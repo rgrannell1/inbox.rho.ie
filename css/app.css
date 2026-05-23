@@ -1,0 +1,394 @@
+/* index.rho.ie — Japanese notebook */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
+
+:root {
+  --paper:      #ffffff;
+  --line:       #b8d4f0;
+  --margin:     #f08080;
+  --ink:        #2c3550;
+  --ink-dim:    #8a9ab0;
+  --ink-blue:   #4060c0;
+  --line-h:     66px;
+  --margin-w:   4.5rem;
+  --font:       "Caveat", cursive;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--paper);
+  font-family: var(--font);
+  font-size: 39px;
+  line-height: var(--line-h);
+  color: var(--ink);
+}
+
+#app { height: 100%; overflow-y: auto; }
+
+/* ── Paper — gradient anchored so every line-h interval ends with a ruled line ── */
+
+.app-inner {
+  min-height: 100%;
+  background-image:
+    linear-gradient(90deg,
+      transparent calc(var(--margin-w) - 1px),
+      var(--margin) calc(var(--margin-w) - 1px),
+      var(--margin) var(--margin-w),
+      transparent var(--margin-w)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent calc(var(--line-h) - 1px),
+      var(--line) calc(var(--line-h) - 1px),
+      var(--line) var(--line-h)
+    );
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header — exactly one line tall so subsequent rows stay on-grid ── */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--line-h);
+  padding: 0 1rem 0 calc(var(--margin-w) + 0.75rem);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.app-header::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--margin-w) - 1.5rem);
+  top: 50%;
+  transform: translateY(-50%) rotate(-1.5deg);
+  width: 3.2rem;
+  height: 18px;
+  background: rgba(255, 210, 100, 0.8) repeating-linear-gradient(
+    45deg, rgba(255,255,255,0.35) 0, rgba(255,255,255,0.35) 3px, transparent 3px, transparent 7px
+  );
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+}
+
+.brand {
+  color: var(--ink-blue);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: var(--line-h);
+}
+
+/* ── Sync status ── */
+
+.sync-status { font-size: 13px; font-style: italic; }
+.sync-status--syncing { color: var(--ink-dim); }
+.sync-status--ok      { color: var(--ink-blue); }
+.sync-status--error   { color: var(--margin); }
+
+/* ── Prompt — sits on one ruled line ── */
+
+.prompt-area {
+  display: flex;
+  align-items: flex-start;
+  padding: 0 1rem 0 calc(var(--margin-w) + 0.75rem);
+  flex-shrink: 0;
+}
+
+.prompt-sigil {
+  color: var(--margin);
+  padding-right: 0.4rem;
+  flex-shrink: 0;
+  line-height: var(--line-h);
+  user-select: none;
+}
+
+.prompt-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 39px;
+  line-height: var(--line-h);
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+  caret-color: var(--margin);
+  /* height snapped to multiples of --line-h via JS */
+  min-height: var(--line-h);
+}
+
+.prompt-input::placeholder { color: var(--ink-dim); font-style: italic; }
+
+/* ── Entry list ── */
+
+.entry-list {
+  flex: 1;
+  padding-bottom: 4rem;
+}
+
+.entry-empty {
+  color: var(--ink-dim);
+  font-style: italic;
+  padding: 0 1rem 0 calc(var(--margin-w) + 0.75rem);
+  line-height: var(--line-h);
+}
+
+/* ── Entry card ── */
+
+.entry-card {
+  padding: 0 1rem 0 calc(var(--margin-w) + 0.75rem);
+  min-height: var(--line-h);
+  position: relative;
+  overflow: visible;
+}
+
+/* Washi tape strip — delimiter above each entry, varying width and position */
+.entry-card::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  height: 18px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+}
+
+.entry-card:nth-child(6n+1)::before {
+  left: 2%;
+  right: 18%;
+  background: rgba(255, 182, 193, 0.78)
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.35) 0, rgba(255,255,255,0.35) 3px, transparent 3px, transparent 9px);
+  transform: rotate(-0.3deg);
+}
+.entry-card:nth-child(6n+2)::before {
+  left: 3%;
+  right: 14%;
+  background: rgba(167, 210, 190, 0.78)
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 6px);
+  transform: rotate(0.2deg);
+}
+.entry-card:nth-child(6n+3)::before {
+  left: 1%;
+  right: 20%;
+  background: rgba(200, 182, 255, 0.75)
+    repeating-radial-gradient(circle at 4px 4px, rgba(255,255,255,0.45) 1.5px, transparent 1.5px) 0 0 / 8px 8px;
+  transform: rotate(-0.2deg);
+}
+.entry-card:nth-child(6n+4)::before {
+  left: 3%;
+  right: 15%;
+  background: rgba(255, 210, 150, 0.8)
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 6px);
+  transform: rotate(0.35deg);
+}
+.entry-card:nth-child(6n+5)::before {
+  left: 2%;
+  right: 22%;
+  background: rgba(173, 216, 230, 0.8)
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 4px, transparent 4px, transparent 10px);
+  transform: rotate(-0.15deg);
+}
+.entry-card:nth-child(6n+6)::before {
+  left: 4%;
+  right: 16%;
+  background: rgba(255, 182, 140, 0.78)
+    repeating-radial-gradient(circle at 4px 4px, rgba(255,255,255,0.4) 1.5px, transparent 1.5px) 0 0 / 8px 8px;
+  transform: rotate(0.25deg);
+}
+
+.entry-card--editing::before { opacity: 0.35; }
+
+.entry-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: var(--line-h);
+  cursor: pointer;
+}
+
+.entry-text:hover { color: var(--ink-blue); }
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: var(--line-h);
+}
+
+.entry-date {
+  color: var(--ink-dim);
+  font-size: 14px;
+  font-style: italic;
+  flex: 1;
+}
+
+/* ── Edit ── */
+
+.entry-edit-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 39px;
+  line-height: var(--line-h);
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+  caret-color: var(--margin);
+}
+
+.entry-edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  height: var(--line-h);
+  align-items: center;
+}
+
+/* ── Buttons ── */
+
+.entry-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--ink-dim);
+  color: var(--ink-blue);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 0 0.15rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.entry-btn:hover { border-bottom-color: var(--ink-blue); }
+.entry-btn--dim  { color: var(--ink-dim); }
+.entry-btn--dim:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ── Auth modal ── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(180, 200, 220, 0.35);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+
+.modal-panel {
+  background: #fffef0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent calc(var(--line-h) - 1px),
+    #c8d8f0 calc(var(--line-h) - 1px),
+    #c8d8f0 var(--line-h)
+  );
+  width: min(380px, 90vw);
+  padding: 0 1.5rem calc(var(--line-h) * 0.75);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.modal-panel::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-0.5deg);
+  width: 5rem;
+  height: 18px;
+  background: rgba(255, 210, 100, 0.85) repeating-linear-gradient(
+    45deg, rgba(255,255,255,0.35) 0, rgba(255,255,255,0.35) 3px, transparent 3px, transparent 7px
+  );
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
+}
+
+.modal-title {
+  color: var(--ink-blue);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  height: var(--line-h);
+  line-height: var(--line-h);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--ink-dim);
+  font-family: var(--font);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover { color: var(--ink); }
+
+.modal-subtitle {
+  color: var(--ink-dim);
+  font-size: 14px;
+  font-style: italic;
+  height: var(--line-h);
+  line-height: var(--line-h);
+}
+
+.modal-form { display: flex; flex-direction: column; }
+
+.modal-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--ink-dim);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 39px;
+  padding: 0 0.25rem;
+  outline: none;
+  width: 100%;
+  caret-color: var(--margin);
+  height: var(--line-h);
+  line-height: var(--line-h);
+}
+
+.modal-input::placeholder { color: var(--ink-dim); font-style: italic; }
+
+.modal-submit {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--ink-blue);
+  color: var(--ink-blue);
+  font-family: var(--font);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  padding: 0 0.25rem;
+  cursor: pointer;
+  align-self: flex-start;
+  height: var(--line-h);
+  line-height: var(--line-h);
+}
+
+.modal-submit:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ── Fatal error ── */
+
+.fatal-error {
+  padding: calc(var(--line-h) * 2) calc(var(--margin-w) + 0.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fatal-title   { color: var(--margin); font-size: 14px; letter-spacing: 0.1em; line-height: var(--line-h); }
+.fatal-message { font-size: 17px; line-height: var(--line-h); }
+.fatal-stack   { color: var(--ink-dim); font-size: 13px; white-space: pre-wrap; word-break: break-all; }

@@ -1,0 +1,88 @@
+#!/usr/bin/env node
+// Build — bundles ts/index.ts and css/app.css into dist/ with content-hashed filenames
+
+import * as esbuild from "esbuild";
+import { readdirSync, rmSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { join } from "path";
+
+const ALIAS = { "cmstr": "./vendor/cmstr/mod.ts" };
+
+function cleanStale() {
+  const targets = [
+    ["dist/js",  /^app-.+\.(js|js\.map)$/],
+    ["dist/css", /^app-.+\.css$/],
+  ];
+  for (const [dir, pattern] of targets) {
+    if (!existsSync(dir)) continue;
+    for (const file of readdirSync(dir)) {
+      if (pattern.test(file)) rmSync(join(dir, file));
+    }
+  }
+}
+
+function findOutput(meta, entryPoint) {
+  for (const [outPath, info] of Object.entries(meta.outputs)) {
+    if (info.entryPoint === entryPoint && !outPath.endsWith(".map")) {
+      return outPath.replace(/^dist\//, "");
+    }
+  }
+  throw new Error(`No output found for entry: ${entryPoint}`);
+}
+
+function indexHtml(jsPath, cssPath) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070d1a">
+  <title>index</title>
+  <link rel="stylesheet" href="/${cssPath}">
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/${jsPath}"></script>
+</body>
+</html>
+`;
+}
+
+for (const dir of ["dist/js", "dist/css"]) {
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+}
+
+cleanStale();
+
+const [jsResult, cssResult] = await Promise.all([
+  esbuild.build({
+    entryPoints: ["ts/index.ts"],
+    bundle: true,
+    outdir: "dist",
+    entryNames: "js/app-[hash]",
+    format: "esm",
+    minify: true,
+    sourcemap: true,
+    platform: "browser",
+    target: "es2022",
+    alias: ALIAS,
+    tsconfig: "tsconfig.json",
+    metafile: true,
+  }),
+  esbuild.build({
+    entryPoints: ["css/app.css"],
+    bundle: true,
+    outdir: "dist",
+    entryNames: "css/app-[hash]",
+    minify: true,
+    metafile: true,
+  }),
+]);
+
+const jsPath  = findOutput(jsResult.metafile,  "ts/index.ts");
+const cssPath = findOutput(cssResult.metafile, "css/app.css");
+
+writeFileSync(join("dist", "index.html"), indexHtml(jsPath, cssPath));
+
+console.log(`  js   ${jsPath}`);
+console.log(`  css  ${cssPath}`);
+console.log("build done");

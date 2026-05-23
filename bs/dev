@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+// Watch mode — rebuilds JS and CSS on source change
+
+import * as esbuild from "esbuild";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
+
+const ALIAS = { "cmstr": "./vendor/cmstr/mod.ts" };
+
+for (const dir of ["dist/js", "dist/css"]) {
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+}
+
+writeFileSync("dist/index.html", `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>index</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>`);
+
+const shared = {
+  bundle: true,
+  platform: "browser",
+  target: "es2022",
+  sourcemap: true,
+  alias: ALIAS,
+  tsconfig: "tsconfig.json",
+};
+
+const [jsCtx, cssCtx] = await Promise.all([
+  esbuild.context({ ...shared, entryPoints: ["ts/index.ts"], format: "esm", outfile: "dist/js/app.js" }),
+  esbuild.context({ ...shared, entryPoints: ["css/app.css"], outfile: "dist/css/app.css" }),
+]);
+
+await Promise.all([jsCtx.watch(), cssCtx.watch()]);
+await jsCtx.serve({ servedir: "dist", port: 5555 });
+console.log("serving http://localhost:5555");
