@@ -6,8 +6,8 @@
   --paper:      #ffffff;
   --line:       #b8d4f0;
   --margin:     #f08080;
-  --ink:        #2c3550;
-  --ink-dim:    #8a9ab0;
+  --ink:        #1e3d8c;
+  --ink-dim:    #7a8fb8;
   --ink-blue:   #4060c0;
   --line-h:     66px;
   --margin-w:   4.5rem;
@@ -31,6 +31,7 @@ html, body {
 
 .app-inner {
   min-height: 100%;
+  padding-top: var(--line-h);
   background-image:
     linear-gradient(90deg,
       transparent calc(var(--margin-w) - 1px),
@@ -74,12 +75,14 @@ html, body {
 .prompt-area {
   display: flex;
   align-items: flex-start;
-  padding: 0 1rem 0 calc(var(--margin-w) + 0.75rem);
+  padding: 0 1rem 0 0;
   flex-shrink: 0;
 }
 
 .prompt-sigil {
   color: var(--margin);
+  width: calc(var(--margin-w) + 0.75rem);
+  text-align: right;
   padding-right: 0.4rem;
   flex-shrink: 0;
   line-height: var(--line-h);
