@@ -31,13 +31,17 @@ html, body {
 
 .app-inner {
   min-height: 100%;
-  padding-top: var(--line-h);
+  padding-top: calc(var(--line-h) * 2);
   background-image:
     linear-gradient(90deg,
       transparent calc(var(--margin-w) - 1px),
       var(--margin) calc(var(--margin-w) - 1px),
       var(--margin) var(--margin-w),
       transparent var(--margin-w)
+    ),
+    linear-gradient(to bottom,
+      var(--paper) var(--line-h),
+      transparent var(--line-h)
     ),
     repeating-linear-gradient(
       to bottom,
