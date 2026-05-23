@@ -32,6 +32,7 @@ async function submit(el: HTMLTextAreaElement): Promise<void> {
   draft = "";
   el.value = "";
   autoResize(el);
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
 
   try {
     await writeEntry(store.state.token, id, text);
@@ -55,18 +56,20 @@ export function Prompt() {
     view() {
       if (!store.state.token) return null;
 
-      return m("div.prompt-area", [
-        m("span.prompt-sigil", ">"),
-        m("textarea.prompt-input", {
-          rows:        1,
-          placeholder: "capture…",
-          oninput:     onInput,
-          onkeydown:   onKeydown,
-          oncreate(vnode: m.VnodeDOM) {
-            (vnode.dom as HTMLTextAreaElement).focus();
-          },
-        }),
-      ]);
+      return [
+        m("div.prompt-area", [
+          m("span.prompt-sigil", ">"),
+          m("textarea.prompt-input", {
+            placeholder: "capture…",
+            oninput:     onInput,
+            onkeydown:   onKeydown,
+            oncreate(vnode: m.VnodeDOM) {
+              (vnode.dom as HTMLTextAreaElement).focus();
+            },
+          }),
+        ]),
+        m("div.prompt-after"),
+      ];
     },
   };
 }

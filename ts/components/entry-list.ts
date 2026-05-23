@@ -1,4 +1,4 @@
-// EntryList — scrollable list of entries, newest first
+// EntryList — scrollable list of entries, oldest first (notebook order)
 
 import m from "mithril";
 import { store } from "../state.ts";
@@ -8,7 +8,7 @@ export function EntryList() {
   return {
     view() {
       const sorted = [...store.state.entries.values()]
-        .sort((entryA, entryB) => (entryB.payload?.createdAt ?? 0) - (entryA.payload?.createdAt ?? 0));
+        .sort((entryA, entryB) => (entryA.payload?.createdAt ?? 0) - (entryB.payload?.createdAt ?? 0));
 
       if (sorted.length === 0) {
         return m("div.entry-list", m("p.entry-empty", "nothing yet"));

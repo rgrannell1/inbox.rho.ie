@@ -104,11 +104,14 @@ html, body {
 
 .prompt-input::placeholder { color: var(--ink-dim); font-style: italic; }
 
+.prompt-after {
+  height: calc(var(--line-h) * 3);
+}
+
 /* ── Entry list ── */
 
 .entry-list {
-  flex: 1;
-  padding-bottom: 4rem;
+  padding-bottom: 0;
 }
 
 .entry-empty {
@@ -190,19 +193,28 @@ html, body {
 
 .entry-text:hover { color: var(--ink-blue); }
 
-.entry-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  height: var(--line-h);
+.entry-date {
+  position: absolute;
+  left: 0.25rem;
+  width: calc(var(--margin-w) - 0.5rem);
+  text-align: right;
+  color: var(--ink-dim);
+  font-size: 11px;
+  font-style: italic;
+  line-height: var(--line-h);
+  pointer-events: none;
 }
 
-.entry-date {
-  color: var(--ink-dim);
-  font-size: 14px;
-  font-style: italic;
-  flex: 1;
+.entry-actions {
+  position: absolute;
+  right: 1rem;
+  top: 0;
+  line-height: var(--line-h);
+  opacity: 0;
+  transition: opacity 0.15s;
 }
+
+.entry-card:hover .entry-actions { opacity: 1; }
 
 /* ── Edit ── */
 

@@ -23,8 +23,8 @@ export function App() {
         m("div.app-header", [
           m(SyncStatus),
         ]),
-        m(Prompt),
         m(EntryList),
+        m(Prompt),
       ]);
     },
   };

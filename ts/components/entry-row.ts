@@ -74,10 +74,9 @@ function viewEditing(entry: Entry) {
 function viewEntry(entry: Entry) {
   const payload = entry.payload!;
   return m("div.entry-card", [
+    m("span.entry-date", formatDate(payload.createdAt)),
     m("p.entry-text", { onclick: () => store.startEdit(entry.id, payload.text) }, payload.text),
-    m("div.entry-meta", [
-      m("span.entry-date", formatDate(payload.createdAt)),
-      m("button.entry-btn.entry-btn--dim[type=button]", { onclick: () => store.startEdit(entry.id, payload.text) }, "EDIT"),
+    m("div.entry-actions", [
       m("button.entry-btn.entry-btn--dim[type=button]", { onclick: () => onDelete(entry) }, "×"),
     ]),
   ]);
