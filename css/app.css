@@ -61,27 +61,6 @@ html, body {
   position: relative;
 }
 
-.app-header::before {
-  content: "";
-  position: absolute;
-  left: calc(var(--margin-w) - 1.5rem);
-  top: 50%;
-  transform: translateY(-50%) rotate(-1.5deg);
-  width: 3.2rem;
-  height: 18px;
-  background: rgba(255, 210, 100, 0.8) repeating-linear-gradient(
-    45deg, rgba(255,255,255,0.35) 0, rgba(255,255,255,0.35) 3px, transparent 3px, transparent 7px
-  );
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
-}
-
-.brand {
-  color: var(--ink-blue);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  line-height: var(--line-h);
-}
 
 /* ── Sync status ── */
 

@@ -21,7 +21,6 @@ export function App() {
       return m("div.app-inner", [
         m(AuthModal),
         m("div.app-header", [
-          m("span.brand", "index"),
           m(SyncStatus),
         ]),
         m(Prompt),
