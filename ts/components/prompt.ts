@@ -5,7 +5,8 @@ import { store } from "../state.ts";
 import { writeEntry } from "../sync.ts";
 import type { Entry } from "../types.ts";
 
-let draft = "";
+let draft      = "";
+let textareaEl: HTMLTextAreaElement | null = null;
 
 function autoResize(el: HTMLTextAreaElement): void {
   const lineH = parseFloat(getComputedStyle(el).lineHeight);
@@ -64,9 +65,14 @@ export function Prompt() {
             oninput:     onInput,
             onkeydown:   onKeydown,
             oncreate(vnode: m.VnodeDOM) {
-              (vnode.dom as HTMLTextAreaElement).focus();
+              textareaEl = vnode.dom as HTMLTextAreaElement;
+              textareaEl.focus();
             },
           }),
+          m("button.prompt-submit", {
+            type:    "button",
+            onclick: () => { if (textareaEl) submit(textareaEl); },
+          }, "↵"),
         ]),
         m("div.prompt-after"),
       ];

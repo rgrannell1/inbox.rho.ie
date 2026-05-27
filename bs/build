@@ -6,8 +6,13 @@ import { readdirSync, rmSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
 const ALIAS = {
-  "cmstr":         "/home/rg/Code/cmstr/clients/ts/mod.ts",
-  "cmstr/hashing": "/home/rg/Code/cmstr/clients/ts/hashing.ts",
+  "cmstr":           "/home/rg/Code/cmstr/clients/ts/mod.ts",
+  "cmstr/hashing":   "/home/rg/Code/cmstr/src/core/hashing.ts",
+  "cmstr/idb":       "/home/rg/Code/cmstr/src/storage/idb/index.ts",
+  "cmstr/scheduler": "/home/rg/Code/cmstr/src/storage/idb/scheduler.ts",
+  "cmstr/node":      "/home/rg/Code/cmstr/src/core/node.ts",
+  "cmstr/sync":      "/home/rg/Code/cmstr/src/core/sync.ts",
+  "cmstr/backend":   "/home/rg/Code/cmstr/src/storage/backend.ts",
 };
 
 function cleanStale() {
@@ -68,6 +73,7 @@ const [jsResult, cssResult] = await Promise.all([
     platform: "browser",
     target: "es2022",
     alias: ALIAS,
+    nodePaths: [new URL("../node_modules", import.meta.url).pathname],
     tsconfig: "tsconfig.json",
     metafile: true,
   }),
