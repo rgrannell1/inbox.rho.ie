@@ -22,7 +22,6 @@ export type SyncStatus =
 export type AppState = {
   token: string | null;
   entries: Map<string, Entry>;
-  lastSeq: number;
   syncStatus: SyncStatus;
   showAuthModal: boolean;
   editingId: string | null;

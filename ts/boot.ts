@@ -1,29 +1,34 @@
 // Boot — sync orchestration called on load and after token is set
 
-import { readAllEntries, readLastSeq, writeAuthError } from "./storage.ts";
-import { streamEntries } from "./sync.ts";
+import { initNode } from "./sync.ts";
+import { writeAuthError } from "./storage.ts";
 import { store } from "./state.ts";
-import { POLL_INTERVAL_MS } from "./constants.ts";
+import { INDEX_TOPIC } from "./constants.ts";
 import type { Entry } from "./types.ts";
+import type { ChangeEvent } from "./sync.ts";
 
 function isAuthError(err: unknown): boolean {
   const message = err instanceof Error ? err.message : String(err);
   return message.includes("403") || message.includes("401");
 }
 
-function onStreamEntry(entry: Entry): void {
-  store.applyEntry(entry);
+function applyChange(change: ChangeEvent): void {
+  if (change.type === "delete") {
+    store.applyEntry({ id: change.id, seq: 0, createdAt: 0, updatedAt: 0, payload: null });
+  } else {
+    store.applyEntry(change.entry as Entry);
+  }
 }
 
 export async function startSync(token: string): Promise<void> {
   store.setSyncStatus({ kind: "syncing" });
 
-  const [stored, lastSeq] = await Promise.all([readAllEntries(), readLastSeq()]);
-  store.setReady(stored);
-  store.setLastSeq(lastSeq);
+  const node    = await initNode(token);
+  const stored  = await node.getObjects(INDEX_TOPIC) ?? [];
+  store.setReady(stored as Entry[]);
 
   try {
-    await streamEntries(token, lastSeq + 1, onStreamEntry);
+    await node.sync(INDEX_TOPIC);
     writeAuthError(false);
     store.setSyncStatus({ kind: "upToDate" });
     setTimeout(() => {
@@ -40,20 +45,13 @@ export async function startSync(token: string): Promise<void> {
     store.setSyncStatus({ kind: "error", message: "SYNC ERROR" });
     throw err;
   }
-}
 
-let syncInProgress = false;
+  node.start();
 
-async function pollOnce(token: string): Promise<void> {
-  if (syncInProgress) return;
-  syncInProgress = true;
-  try {
-    await streamEntries(token, store.state.lastSeq + 1, onStreamEntry);
-  } finally {
-    syncInProgress = false;
-  }
-}
-
-export function startPollLoop(token: string): void {
-  setInterval(() => { pollOnce(token).catch(console.error); }, POLL_INTERVAL_MS);
+  // Drive UI updates from all local writes and incoming sync
+  (async () => {
+    for await (const change of node.watch(INDEX_TOPIC)) {
+      applyChange(change);
+    }
+  })().catch(console.error);
 }

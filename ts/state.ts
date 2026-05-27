@@ -7,7 +7,6 @@ function initialState(): AppState {
   return {
     token:         null,
     entries:       new Map(),
-    lastSeq:       0,
     syncStatus:    { kind: "idle" },
     showAuthModal: false,
     editingId:     null,
@@ -22,7 +21,6 @@ function applyToken(state: AppState, token: string | null): void {
 }
 
 function applyEntry(state: AppState, entry: Entry): void {
-  if (entry.seq > state.lastSeq) state.lastSeq = entry.seq;
   if (entry.payload === null) {
     state.entries.delete(entry.id);
   } else {
@@ -45,10 +43,6 @@ class Store {
       entries.filter(entry => entry.payload !== null).map(entry => [entry.id, entry])
     );
     m.redraw();
-  }
-
-  setLastSeq(seq: number): void {
-    this.#state.lastSeq = seq;
   }
 
   applyEntry(entry: Entry): void {

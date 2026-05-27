@@ -23,7 +23,7 @@ function onInput(event: Event): void {
 
 async function submit(el: HTMLTextAreaElement): Promise<void> {
   const text = draft.trim();
-  if (!text || !store.state.token) return;
+  if (!text) return;
 
   const id  = crypto.randomUUID();
   const now = Date.now();
@@ -35,14 +35,7 @@ async function submit(el: HTMLTextAreaElement): Promise<void> {
   autoResize(el);
   el.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  try {
-    await writeEntry(store.state.token, id, text);
-  } catch (err) {
-    store.applyEntry({ ...optimistic, payload: null });
-    const message = err instanceof Error ? err.message : String(err);
-    const stack   = err instanceof Error ? (err.stack ?? "(no stack)") : "(no stack)";
-    store.setFatalError(message, stack);
-  }
+  await writeEntry(id, text);
 }
 
 function onKeydown(event: KeyboardEvent): void {
@@ -61,7 +54,7 @@ export function Prompt() {
         m("div.prompt-area", [
           m("span.prompt-sigil", ">"),
           m("textarea.prompt-input", {
-            placeholder: "capture…",
+            placeholder: "",
             oninput:     onInput,
             onkeydown:   onKeydown,
             oncreate(vnode: m.VnodeDOM) {

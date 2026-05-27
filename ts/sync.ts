@@ -1,54 +1,30 @@
-// Sync — stream objects from cmstr, write and delete entries
+// Sync — CommonStorageNode wrapping IDBBackend + SetIntervalScheduler
 
-import { CmstrClient } from "cmstr";
-import { applyEntryToStorage } from "./storage.ts";
-import { CMSTR_URL, INDEX_TOPIC, STREAM_IDLE_TIMEOUT_MS } from "./constants.ts";
-import type { Entry } from "./types.ts";
+import { CommonStorageNode } from "cmstr/node";
+import { IDBBackend } from "cmstr/idb";
+import { SetIntervalScheduler } from "cmstr/scheduler";
+import { CMSTR_URL, INDEX_TOPIC, IDB_NAME, POLL_INTERVAL_MS } from "./constants.ts";
 
-// Streams objects from startSeq onward, aborting after STREAM_IDLE_TIMEOUT_MS of silence.
-// Calls onEntry for each received object so the caller can update state immediately.
-export async function streamEntries(
-  token: string,
-  startSeq: number,
-  onEntry: (entry: Entry) => void,
-): Promise<void> {
-  const client = new CmstrClient({ url: CMSTR_URL, token });
-  const controller = new AbortController();
-  let idleTimer: ReturnType<typeof setTimeout> | null = null;
+export type { ChangeEvent } from "cmstr/node";
 
-  function resetIdleTimer(): void {
-    if (idleTimer !== null) clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => controller.abort(), STREAM_IDLE_TIMEOUT_MS);
-  }
+let node: CommonStorageNode | null = null;
 
-  resetIdleTimer();
-
-  try {
-    const start = startSeq > 0 ? startSeq : undefined;
-    for await (const obj of client.streamObjects({ topic: INDEX_TOPIC, start, signal: controller.signal })) {
-      resetIdleTimer();
-      const entry = obj as Entry;
-      await applyEntryToStorage(entry);
-      onEntry(entry);
-    }
-  } catch (err) {
-    if (!(err instanceof DOMException && err.name === "AbortError")) throw err;
-  } finally {
-    if (idleTimer !== null) clearTimeout(idleTimer);
-  }
+export async function initNode(token: string): Promise<CommonStorageNode> {
+  const backend   = await IDBBackend.open(IDB_NAME);
+  const scheduler = new SetIntervalScheduler();
+  node = new CommonStorageNode(
+    { backend, scheduler },
+    { objects: [{ topic: INDEX_TOPIC, remoteUrl: CMSTR_URL, token, intervalMs: POLL_INTERVAL_MS }] },
+  );
+  return node;
 }
 
-export async function writeEntry(token: string, id: string, text: string): Promise<void> {
-  const client = new CmstrClient({ url: CMSTR_URL, token });
-  await client.putObject({
-    topic:           INDEX_TOPIC,
-    id,
-    payload:         { text, createdAt: Date.now() },
-    idempotencyKey:  id,
-  });
+export async function writeEntry(id: string, text: string): Promise<void> {
+  if (!node) throw new Error("node not initialised");
+  await node.putObject(INDEX_TOPIC, id, { text, createdAt: Date.now() });
 }
 
-export async function deleteEntry(token: string, id: string): Promise<void> {
-  const client = new CmstrClient({ url: CMSTR_URL, token });
-  await client.deleteObject({ topic: INDEX_TOPIC, id });
+export async function deleteEntry(id: string): Promise<void> {
+  if (!node) throw new Error("node not initialised");
+  await node.deleteObject(INDEX_TOPIC, id);
 }

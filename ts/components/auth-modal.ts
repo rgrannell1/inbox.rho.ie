@@ -3,7 +3,7 @@
 import m from "mithril";
 import { store } from "../state.ts";
 import { writeToken } from "../storage.ts";
-import { startSync, startPollLoop } from "../boot.ts";
+import { startSync } from "../boot.ts";
 
 let tokenDraft = "";
 
@@ -19,7 +19,6 @@ async function submitToken(event: Event): Promise<void> {
   store.setToken(token);
   tokenDraft = "";
   startSync(token)
-    .then(() => startPollLoop(token))
     .catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       const stack   = err instanceof Error ? (err.stack ?? "(no stack)") : "(no stack)";

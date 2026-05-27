@@ -6,20 +6,8 @@ export const CMSTR_URL = "https://cs.rho.ie";
 // cmstr object topic for inbox entries
 export const INDEX_TOPIC = "inbox";
 
-// IndexedDB database name
-export const IDB_NAME = "index-rho-ie";
-
-// IDB object store for live entries
-export const STORE_ENTRIES = "entries";
-
-// IDB key-value meta store
-export const STORE_META = "meta";
-
-// Meta key — last seen object seq
-export const META_LAST_SEQ = "lastSeq";
-
-// How long to wait with no new objects before treating the stream as exhausted
-export const STREAM_IDLE_TIMEOUT_MS = 3_000;
+// IndexedDB database name (v2 — uses IDBBackend schema, incompatible with v1)
+export const IDB_NAME = "index-rho-ie-v2";
 
 // How often to poll for updates
 export const POLL_INTERVAL_MS = 30_000;

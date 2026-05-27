@@ -3,7 +3,7 @@
 import m from "mithril";
 import { readToken, readAuthError, writeToken } from "./storage.ts";
 import { store } from "./state.ts";
-import { startSync, startPollLoop } from "./boot.ts";
+import { startSync } from "./boot.ts";
 import { App } from "./components/app.ts";
 
 window.addEventListener("error", (event) => {
@@ -50,7 +50,6 @@ async function main(): Promise<void> {
 
   if (token && !hadAuthError) {
     startSync(token)
-      .then(() => startPollLoop(token))
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err);
         const stack   = err instanceof Error ? (err.stack ?? "(no stack)") : "(no stack)";

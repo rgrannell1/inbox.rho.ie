@@ -33,7 +33,7 @@ async function saveEdit(entry: Entry): Promise<void> {
   const updated: Entry = { ...entry, payload: { text, createdAt: entry.payload!.createdAt }, updatedAt: Date.now() };
   store.applyEntry(updated);
   store.cancelEdit();
-  await writeEntry(store.state.token, entry.id, text);
+  await writeEntry(entry.id, text);
 }
 
 function onEditKeydown(entry: Entry, event: KeyboardEvent): void {
@@ -46,9 +46,8 @@ function onEditKeydown(entry: Entry, event: KeyboardEvent): void {
 }
 
 async function onDelete(entry: Entry): Promise<void> {
-  if (!store.state.token) return;
   store.applyEntry({ ...entry, payload: null });
-  await deleteEntry(store.state.token, entry.id);
+  await deleteEntry(entry.id);
 }
 
 function viewEditing(entry: Entry) {
