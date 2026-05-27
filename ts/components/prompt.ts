@@ -35,7 +35,11 @@ async function submit(el: HTMLTextAreaElement): Promise<void> {
   autoResize(el);
   el.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  await writeEntry(id, text);
+  try {
+    await writeEntry(id, text);
+  } catch {
+    store.applyEntry({ id, seq: 0, createdAt: 0, updatedAt: 0, payload: null });
+  }
 }
 
 function onKeydown(event: KeyboardEvent): void {

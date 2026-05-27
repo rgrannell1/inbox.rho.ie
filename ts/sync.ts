@@ -10,6 +10,7 @@ export type { ChangeEvent } from "cmstr/node";
 let node: CommonStorageNode | null = null;
 
 export async function initNode(token: string): Promise<CommonStorageNode> {
+  node?.stop();
   const backend   = await IDBBackend.open(IDB_NAME);
   const scheduler = new SetIntervalScheduler();
   node = new CommonStorageNode(
