@@ -1,8 +1,12 @@
-// IDB persistence — token, live entries, and lastSeq cursor
+// Auth state (localStorage) and entry/cursor persistence (IDB)
 
 import { openDB, type IDBPDatabase } from "idb";
-import { IDB_NAME, STORE_ENTRIES, STORE_META, META_TOKEN, META_LAST_SEQ, META_AUTH_ERROR } from "./constants.ts";
+import { IDB_NAME, STORE_ENTRIES, STORE_META, META_LAST_SEQ } from "./constants.ts";
 import type { Entry } from "./types.ts";
+
+// localStorage keys for auth state
+const KEY_TOKEN      = "inbox:token";
+const KEY_AUTH_ERROR = "inbox:authError";
 
 type IndexDB = IDBPDatabase<{
   [STORE_ENTRIES]: { key: string; value: Entry };
@@ -18,14 +22,24 @@ async function openIndexDB(): Promise<IndexDB> {
   });
 }
 
-export async function readToken(): Promise<string | null> {
-  const db = await openIndexDB();
-  return (await db.get(STORE_META, META_TOKEN) as string | undefined) ?? null;
+export function readToken(): string | null {
+  return localStorage.getItem(KEY_TOKEN);
 }
 
-export async function writeToken(token: string): Promise<void> {
-  const db = await openIndexDB();
-  await db.put(STORE_META, token, META_TOKEN);
+export function writeToken(token: string): void {
+  localStorage.setItem(KEY_TOKEN, token);
+}
+
+export function readAuthError(): boolean {
+  return localStorage.getItem(KEY_AUTH_ERROR) === "true";
+}
+
+export function writeAuthError(flag: boolean): void {
+  if (flag) {
+    localStorage.setItem(KEY_AUTH_ERROR, "true");
+  } else {
+    localStorage.removeItem(KEY_AUTH_ERROR);
+  }
 }
 
 export async function readLastSeq(): Promise<number> {
@@ -36,16 +50,6 @@ export async function readLastSeq(): Promise<number> {
 export async function readAllEntries(): Promise<Entry[]> {
   const db = await openIndexDB();
   return db.getAll(STORE_ENTRIES);
-}
-
-export async function readAuthError(): Promise<boolean> {
-  const db = await openIndexDB();
-  return (await db.get(STORE_META, META_AUTH_ERROR) as boolean | undefined) ?? false;
-}
-
-export async function writeAuthError(flag: boolean): Promise<void> {
-  const db = await openIndexDB();
-  await db.put(STORE_META, flag, META_AUTH_ERROR);
 }
 
 // Applies a streamed object: upserts live entries, removes tombstones, advances the seq cursor.

@@ -5,7 +5,10 @@ import * as esbuild from "esbuild";
 import { readdirSync, rmSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
-const ALIAS = { "cmstr": "./vendor/cmstr/mod.ts" };
+const ALIAS = {
+  "cmstr":         "/home/rg/Code/cmstr/clients/ts/mod.ts",
+  "cmstr/hashing": "/home/rg/Code/cmstr/clients/ts/hashing.ts",
+};
 
 function cleanStale() {
   const targets = [

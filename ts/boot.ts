@@ -24,7 +24,7 @@ export async function startSync(token: string): Promise<void> {
 
   try {
     await streamEntries(token, lastSeq + 1, onStreamEntry);
-    await writeAuthError(false);
+    writeAuthError(false);
     store.setSyncStatus({ kind: "upToDate" });
     setTimeout(() => {
       if (store.state.syncStatus.kind === "upToDate") {
@@ -33,7 +33,7 @@ export async function startSync(token: string): Promise<void> {
     }, 3_000);
   } catch (err) {
     if (isAuthError(err)) {
-      await writeAuthError(true);
+      writeAuthError(true);
       store.openAuthModal();
       return;
     }

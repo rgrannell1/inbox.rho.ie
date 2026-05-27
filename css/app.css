@@ -9,6 +9,7 @@
   --ink:        #1e3d8c;
   --ink-dim:    #7a8fb8;
   --ink-blue:   #4060c0;
+  --ink-green:  #2a7a4a;
   --line-h:     66px;
   --margin-w:   4.5rem;
   --font:       "Caveat", cursive;
@@ -66,6 +67,17 @@ html, body {
   position: relative;
 }
 
+
+/* ── Title ── */
+
+.app-title {
+  color: var(--ink-green);
+  font-size: 39px;
+  font-weight: 600;
+  line-height: var(--line-h);
+  position: absolute;
+  top: calc(-1 * var(--line-h));
+}
 
 /* ── Sync status ── */
 

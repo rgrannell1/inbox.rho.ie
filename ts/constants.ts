@@ -15,14 +15,8 @@ export const STORE_ENTRIES = "entries";
 // IDB key-value meta store
 export const STORE_META = "meta";
 
-// Meta key — bearer token
-export const META_TOKEN = "token";
-
 // Meta key — last seen object seq
 export const META_LAST_SEQ = "lastSeq";
-
-// Meta key — whether last sync ended with an auth error
-export const META_AUTH_ERROR = "authError";
 
 // How long to wait with no new objects before treating the stream as exhausted
 export const STREAM_IDLE_TIMEOUT_MS = 3_000;

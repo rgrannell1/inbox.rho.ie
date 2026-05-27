@@ -21,6 +21,7 @@ export function App() {
       return m("div.app-inner", [
         m(AuthModal),
         m("div.app-header", [
+          m("span.app-title", "Inbox"),
           m(SyncStatus),
         ]),
         m(EntryList),

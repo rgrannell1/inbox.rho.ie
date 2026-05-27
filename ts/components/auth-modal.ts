@@ -15,7 +15,7 @@ async function submitToken(event: Event): Promise<void> {
   event.preventDefault();
   const token = tokenDraft.trim();
   if (!token) return;
-  await writeToken(token);
+  writeToken(token);
   store.setToken(token);
   tokenDraft = "";
   startSync(token)
