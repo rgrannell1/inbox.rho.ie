@@ -410,6 +410,14 @@ html, body {
 
 /* ── Mobile ── */
 
+@media (max-width: 768px) {
+  :root {
+    font-size: 26px;
+    --line-h: 46px;
+    --margin-w: 2.5rem;
+  }
+}
+
 .prompt-submit {
   display: none;
 }
